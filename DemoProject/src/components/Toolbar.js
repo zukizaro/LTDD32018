@@ -1,68 +1,66 @@
-import React, { Component } from 'react';
-import { PropTypes, Text, View } from 'react-native';
-import { Toolbar as MaterialToolbar } from 'react-native-material-design';
-import AppStore from '../stores/AppStore';
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MXHCoreApp.Application.Interfaces;
+using MXHCoreApp.Application.ViewModels.Page;
+using MXHCoreApp.Data.Entities;
+using MXHCoreApp.Utilities.Dtos;
+using MXHCoreApp.Data.EF.Repositories;
+using MXHCoreApp.Data.EF;
+using MXHCoreApp.Utilities.Constants;
+using MXHCoreApp.Application.Searchs;
 
-export default class Toolbar extends Component {
+namespace MXHCoreApp.Application.Implementation
+{
+    public class PageUserService : BaseService, IPageUserService
+    {
+        private IRepository<PageUser> _PageUserRepository;
+        private IUnitOfWork _unitOfWork;
 
-    static contextTypes = {
-        navigator: PropTypes.object
-    };
+        public PageUserService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+            _PageUserRepository = unitOfWork.PageUserRepository;
+        }
 
-    static propTypes = {
-        onIconPress: PropTypes.func.isRequired
-    };
+        public bool Add(PageUserViewModel entityvm)
+        {
+            try
+            {
+                var entity = Mapper.Map<PageUser>(entityvm);
+                entity.Status = CommonConstants.StatusActive;
+                _PageUserRepository.Insert(entity);
+                _unitOfWork.Commit();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            title: AppStore.getState().routeName,
-            theme: AppStore.getState().theme,
-            counter: 0
-        };
-    }
+        public bool Delete(int id)
+        {
+            try
+            {
+                var entity = _PageUserRepository.GetById(id);
+                entity.Status = CommonConstants.StatusDeactivated;
+                _PageUserRepository.Update(entity);
+                _unitOfWork.Commit();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
-    increment = () => {
-        this.setState({
-            counter: this.state.counter + 1
-        });
-    };
-
-    componentDidMount = () => {
-        AppStore.listen(this.handleAppStore);
-    };
-
-    componentWillUnmount() {
-        AppStore.unlisten(this.handleAppStore);
-    }
-
-    handleAppStore = (store) => {
-        this.setState({
-            title: store.routeName,
-            theme: store.theme
-        });
-    };
-
-    render() {
-        const { navigator } = this.context;
-        const { theme, counter } = this.state;
-        const { onIconPress } = this.props;
-
-        return (
-            <MaterialToolbar
-                title={navigator && navigator.currentRoute ? navigator.currentRoute.title : 'Welcome'}
-                primary={theme}
-                icon={navigator && navigator.isChild ? 'keyboard-backspace' : 'menu'}
-                onIconPress={() => navigator && navigator.isChild ? navigator.back() : onIconPress()}
-                actions={[{
-                    icon: 'warning',
-                    badge: { value: counter, animate: true },
-                    onPress: this.increment
-                }]}
-                rightIconStyle={{
-                    margin: 10
-                }}
-            />
-        );
-    }
-}
+        public List<PageUserViewModel> GetAll()
+        {
+            var entities = _PageUserRepository.GetAll().ToList();
+            var results = Mapp
