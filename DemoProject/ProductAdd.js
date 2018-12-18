@@ -3,23 +3,23 @@
 import React, {Component} from 'react';
  
 import { StyleSheet, View, TextInput, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {host} from './app.json'; 
  
-export default class ProductInsert extends React.Component
+export default class ProductAdd extends React.Component
 {
+    
+    static navigationOptions = {
+        title: 'Add new product',
+    };
+    
     constructor()
     {
         super();
- 
         this.state = { 
- 
-          masp: '', 
- 
-          tensp: '', 
- 
-          soluong: '',
- 
+          code: '', 
+          name: '', 
+          quantity: '',
           ActivityIndicator_Loading: false, 
- 
         }
     }
  
@@ -27,7 +27,7 @@ export default class ProductInsert extends React.Component
     {
         this.setState({ ActivityIndicator_Loading : true }, () =>
         {
-            fetch('http://192.168.245.2/webservice/Insert_SanPham.php',
+            fetch(host+'/LTDD3WS/InsertProduct.php',
             {
                 method: 'POST',
                 headers: 
@@ -37,24 +37,19 @@ export default class ProductInsert extends React.Component
                 },
                 body: JSON.stringify(
                 {
-                  masp : this.state.masp,
- 
-                  tensp : this.state.tensp,
- 
-                  soluong : this.state.soluong
- 
+                  code : this.state.code,
+                  name : this.state.name,
+                  quantity : this.state.quantity
                 })
  
             }).then((response) => response.json()).then((responseJsonFromServer) =>
             {
                 alert(responseJsonFromServer);
- 
                 this.setState({ ActivityIndicator_Loading : false });
- 
+                this.props.navigation.navigate('ProductList')
             }).catch((error) =>
             {
                 console.error(error);
- 
                 this.setState({ ActivityIndicator_Loading : false});
             });
         });
@@ -70,33 +65,31 @@ export default class ProductInsert extends React.Component
                   placeholder = "Nhập mã sản phẩm"
                   style = { styles.TextInputStyleClass } 
                   underlineColorAndroid = "transparent"
-                  onChangeText = {(TextInputText) => this.setState({ masp: TextInputText })} />
+                  onChangeText = {(TextInputText) => this.setState({ code: TextInputText })} />
  
                 <TextInput 
                   placeholder = "Nhập tên sản phẩm"
                   style = { styles.TextInputStyleClass } 
                   underlineColorAndroid = "transparent"
-                  onChangeText = {(TextInputText) => this.setState({ tensp: TextInputText })} />
+                  onChangeText = {(TextInputText) => this.setState({ name: TextInputText })} />
  
                 <TextInput  
                   placeholder = "Nhập số lương" 
                   style = { styles.TextInputStyleClass } 
                   underlineColorAndroid = "transparent"
-                  onChangeText = {(TextInputText) => this.setState({ soluong: TextInputText })} />
- 
+                  onChangeText = {(TextInputText) => this.setState({ quantity: TextInputText })} />
+    
+                <View>
+
+                </View>
                 <TouchableOpacity 
                   activeOpacity = { 0.5 } 
                   style = { styles.TouchableOpacityStyle } 
                   onPress = { this.Insert_Data_Into_MySQL }>
- 
                     <Text style = { styles.TextStyle }>Thêm sản phẩm</Text>
- 
-                </TouchableOpacity>
- 
+                </TouchableOpacity> 
                 {
-        
-                this.state.ActivityIndicator_Loading ? <ActivityIndicator color='#009688' size='large'style={styles.ActivityIndicatorStyle} /> : null
-                
+                    this.state.ActivityIndicator_Loading ? <ActivityIndicator color='#009688' size='large'style={styles.ActivityIndicatorStyle} /> : null
                 }
                 
             </View>
