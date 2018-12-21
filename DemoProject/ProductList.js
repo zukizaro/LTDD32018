@@ -26,13 +26,11 @@ export default class ProductList extends React.Component {
         }, function(){
 
         });
-
       })
       .catch((error) =>{
         console.error(error);
       });
   } 
-
 
   render(){
 
@@ -48,7 +46,7 @@ export default class ProductList extends React.Component {
       <View style={{flex: 1, paddingTop:10}}>
         <FlatList 
           data={this.state.dataSource}
-          renderItem={({item}) => <ProductItem code={item.code} name={item.name} quantity={item.quantity} image={item.image}/>}
+          renderItem={({item}) => <ProductItem code={item.code} name={item.name} quantity={item.quantity} image={item.image} navigation={this.props.navigation}/>}
         />
         <Button style={{paddingTop:10}}
           onPress={() => this.props.navigation.navigate('ProductAdd')}
